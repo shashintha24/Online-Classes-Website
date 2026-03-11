@@ -1,11 +1,18 @@
-import React from "react";
+import { Link } from 'react-router-dom'
 
 function NotFoundPage() {
   return (
-    <div className="flex items-center justify-center h-screen">
-      <h1 className="text-4xl font-bold">404 - Page Not Found</h1>
-    </div>
-  );
+    <main className="site-shell centered-page">
+      <div className="not-found-card">
+        <p className="eyebrow">ERROR 404</p>
+        <h1>Page not found</h1>
+        <p>The page you requested does not exist or has been moved.</p>
+        <Link className="btn btn-primary" to="/">
+          Back to Home
+        </Link>
+      </div>
+    </main>
+  )
 }
 
-export default NotFoundPage;
+export default NotFoundPage

@@ -1,18 +1,29 @@
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import './App.css'
+import AdminPage from './pages/AdminPage'
+import CoursePage from './pages/CoursePage'
+import DashboardPage from './pages/DashboardPage'
 import HomePage from './pages/HomePage'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import DashboardPage from './pages/DashboardPage';
-import NotFoundPage from './pages/NotFoundPage';
+import LoginPage from './pages/LoginPage'
+import NotFoundPage from './pages/NotFoundPage'
+import RegisterPage from './pages/RegisterPage'
 
 function App() {
-  return(
-    <Router>
+  return (
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/courses" element={<CoursePage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/NotFound" element={<NotFoundPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/not-found" element={<NotFoundPage />} />
+        <Route path="/home" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   )
 }
 
-export default App;
+export default App
