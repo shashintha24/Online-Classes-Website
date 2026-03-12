@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import Header from '../components/header/Header'
 
 const upcoming = [
   { className: 'Python Foundations', time: 'Today, 6:00 PM' },
@@ -8,7 +9,9 @@ const upcoming = [
 
 function DashboardPage() {
   return (
+    
     <main className="site-shell">
+      <Header />
       <section className="container page-head">
         <p className="eyebrow">STUDENT DASHBOARD</p>
         <h1>Track your progress and next classes</h1>

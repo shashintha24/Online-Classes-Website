@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
+import Header from '../components/header/Header'
 
 function AdminPage() {
 	return (
 		<main className="site-shell">
+			<Header />
 			<section className="container page-head">
 				<p className="eyebrow">ADMIN PANEL</p>
 				<h1>Class platform control center</h1>

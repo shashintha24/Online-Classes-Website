@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-
+import Header from '../components/header/Header'
 const courses = [
 	{ title: 'Frontend Development Bootcamp', level: 'Beginner', lessons: 36, duration: '10 Weeks' },
 	{ title: 'Data Structures with JavaScript', level: 'Intermediate', lessons: 28, duration: '8 Weeks' },
@@ -10,6 +10,7 @@ const courses = [
 function CoursePage() {
 	return (
 		<main className="site-shell">
+			<Header />
 			<section className="container page-head">
 				<p className="eyebrow">COURSE CATALOG</p>
 				<h1>Choose your next skill track</h1>
