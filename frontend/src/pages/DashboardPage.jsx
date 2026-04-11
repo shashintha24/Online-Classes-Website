@@ -2,31 +2,30 @@ import { Link } from 'react-router-dom'
 import Header from '../components/header/Header'
 
 const upcoming = [
-  { className: 'Python Foundations', time: 'Today, 6:00 PM' },
-  { className: 'UI Design Critique', time: 'Tomorrow, 4:30 PM' },
-  { className: 'Node.js Lab Session', time: 'Friday, 8:00 PM' },
+  { className: 'System Design for Product Engineers', time: 'Today, 6:00 PM' },
+  { className: 'Advanced SQL Query Practice', time: 'Tomorrow, 4:30 PM' },
+  { className: 'Cloud Security Fundamentals', time: 'Friday, 8:00 PM' },
 ]
 
 function DashboardPage() {
   return (
-    
     <main className="site-shell">
       <Header />
       <section className="container page-head">
-        <p className="eyebrow">STUDENT DASHBOARD</p>
-        <h1>Track your progress and next classes</h1>
+        <p className="eyebrow">My learning</p>
+        <h1>Welcome back, keep your streak alive</h1>
       </section>
 
       <section className="container dashboard-grid">
         <article className="dashboard-card">
-          <h3>This Week</h3>
-          <p>3 classes attended</p>
-          <p>2 assignments submitted</p>
-          <p>Average score: 87%</p>
+          <h3>Weekly snapshot</h3>
+          <p>4 modules completed</p>
+          <p>2 practice projects submitted</p>
+          <p>Average quiz score: 91%</p>
         </article>
 
         <article className="dashboard-card">
-          <h3>Upcoming Live Classes</h3>
+          <h3>Upcoming live sessions</h3>
           <ul className="simple-list">
             {upcoming.map((item) => (
               <li key={item.className}>
@@ -36,11 +35,20 @@ function DashboardPage() {
             ))}
           </ul>
         </article>
+
+        <article className="dashboard-card">
+          <h3>Continue watching</h3>
+          <p>Modern React Architecture</p>
+          <p className="muted">Lesson 18 of 52 | 43% complete</p>
+          <button className="btn btn-dark" type="button">
+            Resume learning
+          </button>
+        </article>
       </section>
 
       <section className="container back-row">
         <Link to="/courses" className="btn btn-outline">
-          Explore More Courses
+          Discover more courses
         </Link>
       </section>
     </main>
