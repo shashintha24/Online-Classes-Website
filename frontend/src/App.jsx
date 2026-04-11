@@ -7,6 +7,8 @@ import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
 import RegisterPage from './pages/RegisterPage'
+import Studentpage from './pages/StudentPortal'
+import Manegement from './pages/TuitionPlatform'
 
 function App() {
   return (
@@ -20,7 +22,9 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/not-found" element={<NotFoundPage />} />
         <Route path="/home" element={<Navigate to="/" replace />} />
+        <Route path="/student" element={<Studentpage />} />
         <Route path="*" element={<NotFoundPage />} />
+        <Route path="/management" element={<Manegement />} />
       </Routes>
     </BrowserRouter>
   )
