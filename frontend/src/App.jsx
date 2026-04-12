@@ -9,12 +9,13 @@ import NotFoundPage from './pages/NotFoundPage'
 import RegisterPage from './pages/RegisterPage'
 import Studentpage from './pages/StudentPortal'
 import Manegement from './pages/TuitionPlatform'
+import LandingPage from './pages/EduTrackLanding'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/homepage" element={<HomePage />} />
         <Route path="/courses" element={<CoursePage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/admin" element={<AdminPage />} />
@@ -25,6 +26,8 @@ function App() {
         <Route path="/student" element={<Studentpage />} />
         <Route path="*" element={<NotFoundPage />} />
         <Route path="/management" element={<Manegement />} />
+        <Route path="/tuition" element={<Manegement />} />
+        <Route path="/" element={<LandingPage />} />
       </Routes>
     </BrowserRouter>
   )
