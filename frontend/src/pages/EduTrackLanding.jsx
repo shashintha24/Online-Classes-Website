@@ -198,8 +198,6 @@ const STATS = [
 const NAV_LINKS = [
   { label: "Features", href: "#features" },
   { label: "How it works", href: "#how-it-works" },
-  { label: "Login", to: "/login" },
-  { label: "Register", to: "/register" },
   { label: "StudentPortal", to: "/student" },
   { label: "TuitionPlatform", to: "/tuition" },
 ];
@@ -337,7 +335,19 @@ export default function EduTrackLanding({ onEnterPortal }) {
           </div>
 
           {/* Right side */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ml-auto">
+            <Link
+              to="/login"
+              className="hidden lg:inline-flex items-center border border-[#a78bfa] text-[#6d28d9] font-semibold px-4 py-2 rounded-xl text-sm hover:bg-[#ede9fe] transition-colors cursor-pointer"
+            >
+              Log in
+            </Link>
+            <Link
+              to="/signup"
+              className="hidden lg:inline-flex items-center bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors cursor-pointer"
+            >
+              Sign up
+            </Link>
             <button
               onClick={() => setDarkMode(!darkMode)}
               className={`p-2 rounded-lg ${t.toggleBtn} transition-colors cursor-pointer`}
