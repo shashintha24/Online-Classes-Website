@@ -1,5 +1,74 @@
 import { useState, useEffect, useRef } from "react";
 
+const PAPER_RESULTS = [
+  { paper: "Physics Paper 1", subject: "Physics", mark: 72, classAvg: 68, date: "2026-01-11" },
+  { paper: "Physics Paper 2", subject: "Physics", mark: 76, classAvg: 73, date: "2026-02-02" },
+  { paper: "Physics Paper 3", subject: "Physics", mark: 81, classAvg: 74, date: "2026-03-01" },
+  { paper: "Physics Paper 4", subject: "Physics", mark: 79, classAvg: 75, date: "2026-04-10" },
+  { paper: "Maths Unit Test 1", subject: "Maths", mark: 69, classAvg: 66, date: "2026-01-20" },
+  { paper: "Maths Unit Test 2", subject: "Maths", mark: 74, classAvg: 71, date: "2026-02-25" },
+  { paper: "Maths Unit Test 3", subject: "Maths", mark: 83, classAvg: 77, date: "2026-03-28" },
+  { paper: "Chemistry Paper 1", subject: "Chemistry", mark: 65, classAvg: 67, date: "2026-01-29" },
+  { paper: "Chemistry Paper 2", subject: "Chemistry", mark: 71, classAvg: 70, date: "2026-03-13" },
+  { paper: "Chemistry Paper 3", subject: "Chemistry", mark: 73, classAvg: 71, date: "2026-04-03" },
+];
+
+function getMarkStats(rows) {
+  const total = rows.length;
+  const avg = Math.round(rows.reduce((sum, row) => sum + row.mark, 0) / total);
+  const aCount = rows.filter((row) => row.mark >= 75).length;
+  const bCount = rows.filter((row) => row.mark >= 65 && row.mark < 75).length;
+
+  return {
+    avg,
+    aPercent: Math.round((aCount / total) * 100),
+    bPercent: Math.round((bCount / total) * 100),
+  };
+}
+
+function PerformanceSparkline({ rows, t }) {
+  const width = 520;
+  const height = 200;
+  const pad = 24;
+  const minY = 40;
+  const maxY = 100;
+
+  const points = rows.map((row, index) => {
+    const x = pad + (index * (width - pad * 2)) / (rows.length - 1);
+    const y = height - pad - ((row.mark - minY) / (maxY - minY)) * (height - pad * 2);
+    return { x, y, label: row.paper, mark: row.mark };
+  });
+
+  const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+
+  return (
+    <div className={`${t.card} rounded-xl p-4`}>
+      <p className={`text-xs font-semibold uppercase tracking-wider ${t.textTert} mb-3`}>Paper Mark Variation</p>
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-52" role="img" aria-label="Mark variation graph">
+        <line x1={pad} y1={height - pad} x2={width - pad} y2={height - pad} stroke="currentColor" className={t.textTert} opacity="0.35" />
+        <line x1={pad} y1={pad} x2={pad} y2={height - pad} stroke="currentColor" className={t.textTert} opacity="0.35" />
+        <path d={linePath} fill="none" stroke="#a435f0" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        {points.map((p) => (
+          <g key={p.label}>
+            <circle cx={p.x} cy={p.y} r="4" fill="#a435f0" />
+            <text x={p.x} y={p.y - 10} textAnchor="middle" fontSize="10" fill="currentColor" className={t.textSub}>
+              {p.mark}
+            </text>
+          </g>
+        ))}
+      </svg>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-2">
+        {rows.slice(-5).map((row) => (
+          <div key={row.paper} className={`${t.metric} rounded-md px-2 py-1.5`}>
+            <p className={`text-[10px] truncate ${t.textTert}`}>{row.paper}</p>
+            <p className={`text-xs font-semibold ${t.text}`}>{row.mark}%</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── THEME TOKENS ────────────────────────────────────────────────────────────
 const THEMES = {
   light: {
@@ -203,13 +272,22 @@ const OutlineBtn = ({ children, small, t, onClick }) => (
 
 // ─── PAGES ────────────────────────────────────────────────────────────────────
 function DashboardPage({ t }) {
+  const stats = getMarkStats(PAPER_RESULTS);
+
   return (
     <div className="p-6 space-y-5">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MetricCard label="Average Mark" value="74%" color="text-[#a435f0]" t={t} />
+        <MetricCard label="Average Mark" value={`${stats.avg}%`} color="text-[#a435f0]" t={t} />
         <MetricCard label="Attendance" value="88%" color="text-emerald-500" t={t} />
+        <MetricCard label="A Grade %" value={`${stats.aPercent}%`} color="text-blue-500" t={t} />
+        <MetricCard label="B Grade %" value={`${stats.bPercent}%`} color="text-amber-500" t={t} />
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <MetricCard label="Class Rank" value="#3" color="text-[#3c3489]" t={t} />
         <MetricCard label="Percentile" value="89th" color="text-amber-500" t={t} />
+        <MetricCard label="Papers Done" value={`${PAPER_RESULTS.length}`} color="text-[#a435f0]" t={t} />
+        <MetricCard label="Latest Mark" value={`${PAPER_RESULTS[PAPER_RESULTS.length - 1].mark}%`} color="text-emerald-500" t={t} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -277,17 +355,21 @@ function DashboardPage({ t }) {
           </tbody>
         </table>
       </SectionCard>
+
+      <PerformanceSparkline rows={PAPER_RESULTS} t={t} />
     </div>
   );
 }
 
 function MarksPage({ t }) {
+  const stats = getMarkStats(PAPER_RESULTS);
+
   return (
     <div className="p-6 space-y-5">
       <div className="grid grid-cols-3 gap-3">
-        <MetricCard label="Physics Avg" value="74%" color="text-[#a435f0]" t={t} />
-        <MetricCard label="Maths Avg" value="81%" color="text-emerald-500" t={t} />
-        <MetricCard label="Chemistry Avg" value="67%" color="text-orange-500" t={t} />
+        <MetricCard label="Overall Average" value={`${stats.avg}%`} color="text-[#a435f0]" t={t} />
+        <MetricCard label="A Grade %" value={`${stats.aPercent}%`} color="text-blue-500" t={t} />
+        <MetricCard label="B Grade %" value={`${stats.bPercent}%`} color="text-amber-500" t={t} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -348,6 +430,35 @@ function MarksPage({ t }) {
           </tbody>
         </table>
       </SectionCard>
+
+      <SectionCard title="Paper-wise Marks List" t={t}>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className={t.tableHead}>
+              {["Paper", "Subject", "Date", "Your Mark", "Class Avg", "Standing"].map((h) => (
+                <th key={h} className="text-left text-xs font-semibold uppercase tracking-wider py-2 px-3 first:pl-0">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {PAPER_RESULTS.map((row) => {
+              const standing = row.mark > row.classAvg ? ["green", "Above avg"] : row.mark === row.classAvg ? ["blue", "On avg"] : ["amber", "Below avg"];
+              return (
+                <tr key={row.paper} className={t.tableRow}>
+                  <td className={`py-3 px-3 pl-0 font-medium ${t.text}`}>{row.paper}</td>
+                  <td className={`py-3 px-3 ${t.textSub}`}>{row.subject}</td>
+                  <td className={`py-3 px-3 ${t.textSub}`}>{row.date}</td>
+                  <td className={`py-3 px-3 font-bold ${t.text}`}>{row.mark}%</td>
+                  <td className={`py-3 px-3 ${t.textSub}`}>{row.classAvg}%</td>
+                  <td className="py-3 px-3"><Badge variant={standing[0]} t={t}>{standing[1]}</Badge></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </SectionCard>
+
+      <PerformanceSparkline rows={PAPER_RESULTS} t={t} />
     </div>
   );
 }
@@ -718,7 +829,7 @@ export default function StudentPortal() {
         <div className="px-5 py-4 border-b border-inherit">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-base font-bold text-[#a435f0]">EduTrack</p>
+              <p className="text-base font-bold text-[#a435f0]">ElectroPhysics</p>
               <p className={`text-[11px] ${t.textTert} mt-0.5`}>Student Portal</p>
             </div>
             <button className="lg:hidden" onClick={() => setSidebarOpen(false)}><Icons.Close /></button>

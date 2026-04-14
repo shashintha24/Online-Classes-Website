@@ -190,7 +190,7 @@ function DashboardPage({ t }) {
         </Card>
       </div>
 
-      <Card title="Upcoming Schedule" extra={<GhostBtn small t={t}>View all</GhostBtn>} t={t} noPad>
+      <Card title="Upcoming SchElectrole" extra={<GhostBtn small t={t}>View all</GhostBtn>} t={t} noPad>
         <table className="w-full">
           <thead><tr className={t.tableHead}>
             {["Date","Batch","Subject","Time","Room","Status"].map(h => <Th key={h} t={t}>{h}</Th>)}
@@ -280,7 +280,50 @@ function StudentsPage({ t }) {
 
 // ─── ATTENDANCE PAGE ──────────────────────────────────────────────────────────
 function AttendancePage({ t }) {
+  const [scannerCode, setScannerCode] = useState("");
+  const [scannerMessage, setScannerMessage] = useState("Scan QR code to mark attendance");
+  const [register, setRegister] = useState([
+    { name: "Kavindu Perera", batch: "2026 Revision", code: "EP-1042", checkIn: "4:02 PM", method: "QR scan", status: "green", label: "Present" },
+    { name: "Amali Silva", batch: "2026 Revision", code: "EP-1043", checkIn: "4:01 PM", method: "QR scan", status: "green", label: "Present" },
+    { name: "Nuwan Bandara", batch: "2026 Revision", code: "EP-1038", checkIn: "-", method: "-", status: "red", label: "Absent" },
+    { name: "Dilini Wijeratne", batch: "2026 Revision", code: "EP-1039", checkIn: "4:07 PM", method: "Manual", status: "green", label: "Present" },
+    { name: "Sachini Fernando", batch: "2026 Revision", code: "EP-1041", checkIn: "4:15 PM", method: "QR scan", status: "amber", label: "Late" },
+  ]);
+
   const calData = { 1:"p",2:"p",3:"p",4:"a",5:"p",6:"p",7:"p",8:"p",9:"a",10:"p",11:"p" };
+  const presentCount = register.filter((row) => row.label === "Present" || row.label === "Late").length;
+  const absentCount = register.length - presentCount;
+  const monthlyAvg = Math.round((presentCount / register.length) * 100);
+
+  function markByQr() {
+    const code = scannerCode.trim().toUpperCase();
+    if (!code) {
+      setScannerMessage("Please enter a QR student code");
+      return;
+    }
+
+    setRegister((prev) => {
+      const idx = prev.findIndex((row) => row.code === code);
+      if (idx === -1) {
+        setScannerMessage(`No student found for ${code}`);
+        return prev;
+      }
+
+      const next = [...prev];
+      next[idx] = {
+        ...next[idx],
+        checkIn: new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+        method: "QR scan",
+        status: "green",
+        label: "Present",
+      };
+      setScannerMessage(`${next[idx].name} marked present`);
+      return next;
+    });
+
+    setScannerCode("");
+  }
+
   const cells = [<div key="e0" />, ...Array.from({length:30},(_,i)=>{
     const d = i+1, s = calData[d];
     const cls = s==="p" ? "bg-emerald-500 text-white" : s==="a" ? "bg-red-500 text-white" : d>11 ? `${t.barBg} ${t.textTert} opacity-40` : `${t.barBg} ${t.textTert}`;
@@ -290,9 +333,9 @@ function AttendancePage({ t }) {
   return (
     <div className="p-6 space-y-4">
       <div className="grid grid-cols-3 gap-3">
-        <Metric label="Present Today" value="24" sub="/28" color="text-emerald-500" t={t} />
-        <Metric label="Monthly Avg" value="86%" color="text-blue-500" t={t} />
-        <Metric label="Absent Today" value="4" color="text-red-500" t={t} />
+        <Metric label="Present Today" value={`${presentCount}`} sub={`/${register.length}`} color="text-emerald-500" t={t} />
+        <Metric label="Monthly Avg" value={`${monthlyAvg}%`} color="text-blue-500" t={t} />
+        <Metric label="Absent Today" value={`${absentCount}`} color="text-red-500" t={t} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -315,11 +358,20 @@ function AttendancePage({ t }) {
               <rect x="65" y="65" width="6" height="6" fill="#a435f0"/>
             </svg>
           </div>
-          <p className={`text-center text-xs ${t.textSub} mb-2`}>Physics · 2026 Revision · Apr 11, 4:00 PM</p>
+          <p className={`text-center text-xs ${t.textSub} mb-2`}>ElectroPhysics · 2026 Revision · Apr 14, 4:00 PM</p>
           <p className="text-center text-xs font-semibold text-[#a435f0] tracking-widest mb-4">GPS VALIDATION: ON</p>
-          <div className="flex gap-2">
-            <GhostBtn t={t} small><span className="flex-1 text-center w-full">Regenerate QR</span></GhostBtn>
-            <PrimaryBtn small>Mark Manually</PrimaryBtn>
+          <div className="space-y-2">
+            <input
+              value={scannerCode}
+              onChange={(e) => setScannerCode(e.target.value)}
+              placeholder="Enter scanned code e.g. EP-1042"
+              className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none ${t.inputBg}`}
+            />
+            <p className={`text-xs ${t.textSub}`}>{scannerMessage}</p>
+          </div>
+          <div className="flex gap-2 mt-3">
+            <GhostBtn t={t} small onClick={() => setScannerMessage("New QR session generated")}>Regenerate QR</GhostBtn>
+            <PrimaryBtn small onClick={markByQr}>Scan & Mark</PrimaryBtn>
           </div>
         </Card>
 
@@ -342,17 +394,11 @@ function AttendancePage({ t }) {
             {["Student","Batch","Check-in Time","Method","Status"].map(h=><Th key={h} t={t}>{h}</Th>)}
           </tr></thead>
           <tbody>
-            {[
-              ["Kavindu Perera","2026 Revision","4:02 PM","QR scan","green","Present"],
-              ["Amali Silva","2026 Revision","4:01 PM","QR scan","green","Present"],
-              ["Nuwan Bandara","2026 Revision","—","—","red","Absent"],
-              ["Dilini Wijeratne","2026 Revision","4:07 PM","Manual","green","Present"],
-              ["Sachini Fernando","2026 Revision","4:15 PM","QR scan","amber","Late"],
-            ].map(([n,b,ci,m,bv,bs],i)=>(
+            {register.map((row,i)=>(
               <tr key={i} className={t.tableRow}>
-                <Td t={t}><span className="font-medium">{n}</span></Td>
-                <Td t={t}>{b}</Td><Td t={t}>{ci}</Td><Td t={t}>{m}</Td>
-                <td className="py-3 px-3 pr-5"><Badge v={bv} t={t}>{bs}</Badge></td>
+                <Td t={t}><span className="font-medium">{row.name}</span></Td>
+                <Td t={t}>{row.batch}</Td><Td t={t}>{row.checkIn}</Td><Td t={t}>{row.method}</Td>
+                <td className="py-3 px-3 pr-5"><Badge v={row.status} t={t}>{row.label}</Badge></td>
               </tr>
             ))}
           </tbody>
@@ -480,17 +526,44 @@ function MaterialsPage({ t }) {
 
 // ─── FEES PAGE ────────────────────────────────────────────────────────────────
 function FeesPage({ t }) {
+  const [payments, setPayments] = useState([
+    { student: "Kavindu Perera", batch: "2026 Revision", amount: 4500, dueDate: "Apr 5", paidOn: "Apr 3", status: "green", label: "Paid" },
+    { student: "Amali Silva", batch: "2026 Revision", amount: 4500, dueDate: "Apr 5", paidOn: "Apr 5", status: "green", label: "Paid" },
+    { student: "Nuwan Bandara", batch: "2026 Revision", amount: 4500, dueDate: "Apr 5", paidOn: "-", status: "red", label: "Overdue" },
+    { student: "Dilini Wijeratne", batch: "2027 Theory", amount: 3500, dueDate: "Apr 5", paidOn: "Apr 4", status: "green", label: "Paid" },
+    { student: "Sachini Fernando", batch: "O/L Foundation", amount: 3000, dueDate: "Apr 5", paidOn: "-", status: "amber", label: "Pending" },
+  ]);
+
   const feeData = [118000,122000,108000,115000,121000,103500];
   const months = ["Nov","Dec","Jan","Feb","Mar","Apr"];
   const maxVal = Math.max(...feeData);
+  const paidRows = payments.filter((row) => row.label === "Paid");
+  const unpaidRows = payments.filter((row) => row.label !== "Paid");
+  const collected = paidRows.reduce((sum, row) => sum + row.amount, 0);
+  const pending = unpaidRows.reduce((sum, row) => sum + row.amount, 0);
+
+  function markAsPaid(studentName) {
+    setPayments((prev) =>
+      prev.map((row) =>
+        row.student === studentName
+          ? {
+              ...row,
+              paidOn: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+              status: "green",
+              label: "Paid",
+            }
+          : row
+      )
+    );
+  }
 
   return (
     <div className="p-6 space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Metric label="Collected — April" value="LKR 103.5k" color="text-emerald-500" t={t} />
-        <Metric label="Pending Amount" value="LKR 22.5k" color="text-red-500" t={t} />
-        <Metric label="Paid Students" value="23/28" color="text-blue-500" t={t} />
-        <Metric label="Overdue" value="5" color="text-red-500" t={t} />
+        <Metric label="Collected — April" value={`LKR ${(collected / 1000).toFixed(1)}k`} color="text-emerald-500" t={t} />
+        <Metric label="Pending Amount" value={`LKR ${(pending / 1000).toFixed(1)}k`} color="text-red-500" t={t} />
+        <Metric label="Paid Students" value={`${paidRows.length}/${payments.length}`} color="text-blue-500" t={t} />
+        <Metric label="Overdue" value={`${payments.filter((row) => row.label === "Overdue").length}`} color="text-red-500" t={t} />
       </div>
 
       <Card title="April 2026 Fee Status" extra={<GhostBtn small t={t}>Send Reminders</GhostBtn>} t={t} noPad>
@@ -499,22 +572,16 @@ function FeesPage({ t }) {
             {["Student","Batch","Amount","Due Date","Paid On","Status","Action"].map(h=><Th key={h} t={t}>{h}</Th>)}
           </tr></thead>
           <tbody>
-            {[
-              ["Kavindu Perera","2026 Revision","LKR 4,500","Apr 5","Apr 3","green","Paid","Receipt"],
-              ["Amali Silva","2026 Revision","LKR 4,500","Apr 5","Apr 5","green","Paid","Receipt"],
-              ["Nuwan Bandara","2026 Revision","LKR 4,500","Apr 5","—","red","Overdue","Remind"],
-              ["Dilini Wijeratne","2027 Theory","LKR 3,500","Apr 5","Apr 4","green","Paid","Receipt"],
-              ["Sachini Fernando","O/L Foundation","LKR 3,000","Apr 5","—","amber","Pending","Remind"],
-            ].map(([n,b,amt,due,paid,bv,bs,action],i)=>(
+            {payments.map((row,i)=>(
               <tr key={i} className={t.tableRow}>
-                <Td t={t}><span className="font-medium">{n}</span></Td>
-                <Td t={t}>{b}</Td><Td t={t}>{amt}</Td>
-                <Td t={t}>{due}</Td><Td t={t}>{paid}</Td>
-                <td className="py-3 px-3"><Badge v={bv} t={t}>{bs}</Badge></td>
+                <Td t={t}><span className="font-medium">{row.student}</span></Td>
+                <Td t={t}>{row.batch}</Td><Td t={t}>{`LKR ${row.amount.toLocaleString()}`}</Td>
+                <Td t={t}>{row.dueDate}</Td><Td t={t}>{row.paidOn}</Td>
+                <td className="py-3 px-3"><Badge v={row.status} t={t}>{row.label}</Badge></td>
                 <td className="py-3 px-3 pr-5">
-                  {action==="Receipt"
-                    ? <GhostBtn small t={t}><I.Download />{action}</GhostBtn>
-                    : <PrimaryBtn small>{action}</PrimaryBtn>}
+                  {row.label === "Paid"
+                    ? <GhostBtn small t={t}><I.Download />Receipt</GhostBtn>
+                    : <PrimaryBtn small onClick={() => markAsPaid(row.student)}>Mark Paid</PrimaryBtn>}
                 </td>
               </tr>
             ))}
@@ -647,7 +714,7 @@ export default function TuitionPlatform() {
         <div className={`px-5 py-4 border-b ${t.divider}`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-base font-bold text-[#a435f0]">EduTrack</p>
+              <p className="text-base font-bold text-[#a435f0]">ElectroPhysics</p>
               <p className={`text-[11px] ${t.textTert} mt-0.5`}>Tuition Management</p>
             </div>
             <button className="lg:hidden" onClick={()=>setSidebarOpen(false)}><I.Close /></button>

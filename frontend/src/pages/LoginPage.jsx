@@ -99,7 +99,7 @@ const Icon = {
 
 // ─── DEMO CREDENTIALS ──────────────────────────────────────────────────────
 const DEMO = {
-  admin:   { email: "admin@edutrack.lk",   password: "admin123",   dest: "Admin Dashboard" },
+  admin:   { email: "admin@ElectroPhysics.lk",   password: "admin123",   dest: "Admin Dashboard" },
   student: { email: "kavindu@gmail.com",   password: "student123", dest: "Student Portal (Kavindu Perera)" },
 };
 
@@ -121,7 +121,7 @@ const STATS = [
 export default function LoginPage() {
   const [dark, setDark] = useState(false);
   const [role, setRole] = useState("admin");
-  const [email, setEmail] = useState("admin@edutrack.lk");
+  const [email, setEmail] = useState("admin@ElectroPhysics.lk");
   const [password, setPassword] = useState("admin123");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -241,7 +241,7 @@ export default function LoginPage() {
               <Icon.Book size={20} color="#fff" />
             </div>
             <div>
-              <p className="text-white font-bold text-lg leading-none">EduTrack</p>
+              <p className="text-white font-bold text-lg leading-none">ElectroPhysics</p>
               <p className="text-white/50 text-xs mt-0.5">Tuition Management System</p>
             </div>
           </div>
@@ -308,7 +308,7 @@ export default function LoginPage() {
             <div className="w-9 h-9 rounded-xl bg-[#ede9fe] flex items-center justify-center">
               <Icon.Book size={18} color="#534AB7" />
             </div>
-            <p className={`font-bold text-lg ${T.text}`}>EduTrack</p>
+            <p className={`font-bold text-lg ${T.text}`}>ElectroPhysics</p>
           </div>
 
           {/* Heading */}
@@ -347,7 +347,7 @@ export default function LoginPage() {
             <span className={`font-semibold ${T.text}`}>
               {role === "admin" ? "Admin demo:" : "Student demo:"}
             </span>{" "}
-            {role === "admin" ? "admin@edutrack.lk / admin123" : "kavindu@gmail.com / student123"}
+            {role === "admin" ? "admin@ElectroPhysics.lk / admin123" : "kavindu@gmail.com / student123"}
           </div>
 
           {/* Alert box */}
@@ -381,7 +381,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && doLogin()}
-                placeholder={role === "admin" ? "admin@edutrack.lk" : "student@edutrack.lk or #1042"}
+                placeholder={role === "admin" ? "admin@ElectroPhysics.lk" : "student@ElectroPhysics.lk or #1042"}
                 className={`w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border outline-none transition-all ring-0 focus:ring-2 ${T.input}`}
               />
             </div>

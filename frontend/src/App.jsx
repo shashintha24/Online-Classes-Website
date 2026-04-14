@@ -5,7 +5,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import SignupPage from './pages/Signup'
 import Studentpage from './pages/StudentPortal'
 import Manegement from './pages/TuitionPlatform'
-import LandingPage from './pages/EduTrackLanding'
+import LandingPage from './pages/ElectroPhysicsLanding'
 
 function App() {
   return (

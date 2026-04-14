@@ -301,7 +301,7 @@ export default function RegisterPage() {
             }}>
               <Ic.Book {...sz(20)} />
             </div>
-            <span style={{ fontSize: 22, fontWeight: 800, color: D.text, letterSpacing: "-0.5px" }}>EduTrack</span>
+            <span style={{ fontSize: 22, fontWeight: 800, color: D.text, letterSpacing: "-0.5px" }}>ElectroPhysics</span>
           </div>
           <p style={{ fontSize: 13, color: D.sub }}>Create your account — it's free</p>
         </div>
@@ -740,7 +740,7 @@ export default function RegisterPage() {
                 You're all set! 🎉
               </h2>
               <p style={{ fontSize: 14, color: D.sub, lineHeight: 1.6, marginBottom: 6 }}>
-                Welcome to EduTrack,{" "}
+                Welcome to ElectroPhysics,{" "}
                 <strong style={{ color: D.text }}>{firstName || "there"}</strong>!
               </p>
               <p style={{ fontSize: 13, color: D.sub, lineHeight: 1.6, marginBottom: 28 }}>

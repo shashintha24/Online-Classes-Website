@@ -2,7 +2,7 @@
 
 ## Overview
 
-The **Online Class & Attendance Management System** is a web-based application designed to help educational institutions manage online classes and track student attendance efficiently. The system allows teachers to create and manage classes, students to join sessions, and administrators to monitor attendance records and system activities.
+The **Online Class & Attendance Management System** is a web-based application designed to help Electrocational institutions manage online classes and track student attendance efficiently. The system allows teachers to create and manage classes, students to join sessions, and administrators to monitor attendance records and system activities.
 
 This application is built using modern web technologies including React for the frontend, Node.js for the backend, and PostgreSQL for database management.
 
@@ -48,7 +48,7 @@ This application is built using modern web technologies including React for the 
 ### Teacher Features
 
 * Create and manage classes
-* Schedule online sessions
+* SchElectrole online sessions
 * Monitor student attendance
 * Generate attendance reports
 
@@ -188,7 +188,7 @@ Contributions are welcome. If you would like to improve the project, feel free t
 
 ## License
 
-This project is developed for educational purposes and can be modified or extended for academic or research use.
+This project is developed for Electrocational purposes and can be modified or extended for academic or research use.
 
 ---
 
