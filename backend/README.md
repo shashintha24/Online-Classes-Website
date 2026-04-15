@@ -37,3 +37,17 @@ The app seeds demo users at startup (if DB is empty):
 .\mvnw.cmd test
 ```
 
+## Deploy Backend To Railway
+1. In Railway, create a new project and deploy from your GitHub repo.
+2. Set the service root directory to `backend`.
+3. Add a PostgreSQL service in the same Railway project.
+4. In backend service variables, configure:
+  - `SPRING_DATASOURCE_URL` = `${{Postgres.DATABASE_URL}}`
+  - `SPRING_DATASOURCE_USERNAME` = `${{Postgres.PGUSER}}`
+  - `SPRING_DATASOURCE_PASSWORD` = `${{Postgres.PGPASSWORD}}`
+5. Deploy. Railway will build with Maven and start using `railway.json`.
+
+Notes:
+- Port binding is automatic via `server.port=${PORT:8081}`.
+- Local development still works with defaults in `application.properties`.
+
