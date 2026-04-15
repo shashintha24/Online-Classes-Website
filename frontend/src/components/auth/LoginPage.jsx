@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // ─── ICONS ─────────────────────────────────────────────────────────────────
 const Icon = {
@@ -99,9 +100,11 @@ const Icon = {
 
 // ─── DEMO CREDENTIALS ──────────────────────────────────────────────────────
 const DEMO = {
-  admin:   { email: "admin@ElectroPhysics.lk",   password: "admin123",   dest: "Admin Dashboard" },
-  student: { email: "kavindu@gmail.com",   password: "student123", dest: "Student Portal (Kavindu Perera)" },
+  admin:   { email: "admin1",   password: "admin123",   dest: "Admin Dashboard" },
+  student: { email: "student1", password: "student123", dest: "Student Portal" },
 };
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
 
 // ─── FEATURE LIST ──────────────────────────────────────────────────────────
 const FEATURES = [
@@ -119,9 +122,10 @@ const STATS = [
 ];
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [dark, setDark] = useState(false);
   const [role, setRole] = useState("admin");
-  const [email, setEmail] = useState("admin@ElectroPhysics.lk");
+  const [email, setEmail] = useState("admin1");
   const [password, setPassword] = useState("admin123");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -140,35 +144,52 @@ export default function LoginPage() {
     setAlert(null);
   };
 
-  const doLogin = () => {
+  const doLogin = async (overrides = null) => {
+    const loginInput = (overrides?.email ?? email).trim();
+    const passwordInput = (overrides?.password ?? password).trim();
+
     setAlert(null);
-    if (!email.trim() || !password.trim()) {
+    if (!loginInput || !passwordInput) {
       setAlert({ type: "error", message: "Please enter your email and password." });
       return;
     }
+
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      const creds = DEMO[role];
-      const ok =
-        (role === "admin"   && email === creds.email   && password === creds.password) ||
-        (role === "student" && (email === creds.email || email === "#1042") && password === creds.password);
-      if (ok) {
-        setAlert({ type: "success", message: `Login successful! Redirecting to ${creds.dest}…` });
-      } else {
-        setAlert({ type: "error", message: "Invalid credentials. Try the demo credentials shown above." });
+    try {
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ login: loginInput, password: passwordInput }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.message || "Invalid credentials");
       }
-    }, 900);
+
+      localStorage.setItem("ep_auth", JSON.stringify({
+        userId: payload.userId,
+        username: payload.username,
+        email: payload.email,
+        role: payload.role,
+        basicToken: payload.basicToken,
+      }));
+
+      const destination = payload.role === "STUDENT" ? "/student" : "/admin";
+      setAlert({ type: "success", message: "Login successful! Redirecting..." });
+      setTimeout(() => navigate(destination), 450);
+    } catch (error) {
+      setAlert({ type: "error", message: error.message || "Unable to sign in" });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const demoLogin = (r) => {
+  const demoLogin = async (r) => {
+    const creds = DEMO[r];
     switchRole(r);
     setAlert(null);
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setAlert({ type: "success", message: `Login successful! Redirecting to ${DEMO[r].dest}…` });
-    }, 700);
+    await doLogin({ email: creds.email, password: creds.password });
   };
 
   const showForgot = () => {
@@ -347,7 +368,7 @@ export default function LoginPage() {
             <span className={`font-semibold ${T.text}`}>
               {role === "admin" ? "Admin demo:" : "Student demo:"}
             </span>{" "}
-            {role === "admin" ? "admin@ElectroPhysics.lk / admin123" : "kavindu@gmail.com / student123"}
+            {role === "admin" ? "admin1 / admin123" : "student1 / student123"}
           </div>
 
           {/* Alert box */}
@@ -381,7 +402,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && doLogin()}
-                placeholder={role === "admin" ? "admin@ElectroPhysics.lk" : "student@ElectroPhysics.lk or #1042"}
+                placeholder={role === "admin" ? "admin1 or admin@electrophysics.lk" : "student1 or student@electrophysics.lk"}
                 className={`w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border outline-none transition-all ring-0 focus:ring-2 ${T.input}`}
               />
             </div>

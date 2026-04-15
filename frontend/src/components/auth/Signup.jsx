@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
 
 // ─── GLOBAL STYLES ──────────────────────────────────────────────────────────
 const STYLE = `
@@ -130,6 +133,7 @@ function StepDots({ step, total, accent, D }) {
 
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 export default function RegisterPage() {
+  const navigate = useNavigate();
   const [dark, setDark] = useState(false);
   const [step, setStep] = useState(0);           // 0=role, 1=personal, 2=account, 3=success
   const [role, setRole] = useState(null);
@@ -159,6 +163,8 @@ export default function RegisterPage() {
   // Validation errors
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [createdAuth, setCreatedAuth] = useState(null);
 
   const D = dark ? {
     page:        "#1c1d1f",
@@ -253,13 +259,40 @@ export default function RegisterPage() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateAccount()) return;
+    setSubmitError("");
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+
+    try {
+      const payload = {
+        username,
+        email,
+        password,
+        fullName: `${firstName} ${lastName}`.trim(),
+        role: role === "student" ? "STUDENT" : "ADMIN",
+        grade: role === "student" ? (batch || "N/A") : null,
+        subject: role === "admin" ? (subject || "General") : null,
+      };
+
+      const response = await fetch(`${API_BASE}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to create account");
+      }
+
+      setCreatedAuth(data);
       goNext(3);
-    }, 1200);
+    } catch (error) {
+      setSubmitError(error.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ── PROGRESS BAR ──────────────────────────────────────────────────────────
@@ -398,7 +431,7 @@ export default function RegisterPage() {
 
             <p style={{ textAlign: "center", fontSize: 12, color: D.sub, marginTop: 20 }}>
               Already have an account?{" "}
-              <span style={{ color: "#a435f0", fontWeight: 600, cursor: "pointer" }}>Sign in</span>
+              <span style={{ color: "#a435f0", fontWeight: 600, cursor: "pointer" }} onClick={() => navigate("/login")}>Sign in</span>
             </p>
           </div>
         )}
@@ -682,6 +715,12 @@ export default function RegisterPage() {
                 </div>
                 {errors.agree && <p style={{ fontSize: 11, color: "#ef4444", marginTop: -12, marginBottom: 12 }}>{errors.agree}</p>}
 
+                {submitError && (
+                  <p style={{ fontSize: 12, color: "#ef4444", marginBottom: 12 }}>
+                    {submitError}
+                  </p>
+                )}
+
                 {/* Submit */}
                 <button
                   onClick={handleSubmit}
@@ -712,7 +751,7 @@ export default function RegisterPage() {
 
                 <p style={{ textAlign: "center", fontSize: 12, color: D.sub, marginTop: 16 }}>
                   Already registered?{" "}
-                  <span style={{ color: rc.accent, fontWeight: 600, cursor: "pointer" }}>Sign in</span>
+                  <span style={{ color: rc.accent, fontWeight: 600, cursor: "pointer" }} onClick={() => navigate("/login")}>Sign in</span>
                 </p>
               </div>
             </div>
@@ -774,6 +813,18 @@ export default function RegisterPage() {
                 }}
                 onMouseEnter={e => (e.currentTarget.style.opacity = "0.9")}
                 onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+                onClick={() => {
+                  if (createdAuth) {
+                    localStorage.setItem("ep_auth", JSON.stringify({
+                      userId: createdAuth.userId,
+                      username: createdAuth.username,
+                      email: createdAuth.email,
+                      role: createdAuth.role,
+                      basicToken: createdAuth.basicToken,
+                    }));
+                  }
+                  navigate(role === "admin" ? "/admin" : "/student");
+                }}
               >
                 Go to {role === "admin" ? "Admin Dashboard" : "Student Portal"} →
               </button>

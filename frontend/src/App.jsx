@@ -1,11 +1,32 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
-import LoginPage from './pages/LoginPage'
+import LoginPage from './components/auth/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
-import SignupPage from './pages/Signup'
-import Studentpage from './pages/StudentPortal'
-import Manegement from './pages/TuitionPlatform'
+import SignupPage from './components/auth/Signup'
+import Studentpage from './pages/Student/StudentPortal'
+import Manegement from './pages/Teacher/TuitionPortal'
+import AdminPortal from './pages/Admin/AdminPortal'
 import LandingPage from './pages/ElectroPhysicsLanding'
+
+function getStoredAuth() {
+  try {
+    const raw = localStorage.getItem('ep_auth')
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+function RoleRoute({ allow, element }) {
+  const auth = getStoredAuth()
+  if (!auth?.role) {
+    return <Navigate to="/login" replace />
+  }
+  if (!allow.includes(auth.role)) {
+    return <Navigate to="/not-found" replace />
+  }
+  return element
+}
 
 function App() {
   return (
@@ -15,10 +36,11 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/not-found" element={<NotFoundPage />} />
-        <Route path="/student" element={<Studentpage />} />
+        <Route path="/student" element={<RoleRoute allow={["STUDENT"]} element={<Studentpage />} />} />
         <Route path="*" element={<NotFoundPage />} />
-        <Route path="/management" element={<Manegement />} />
-        <Route path="/tuition" element={<Manegement />} />
+        <Route path="/management" element={<RoleRoute allow={["ADMIN", "TEACHER"]} element={<Manegement />} />} />
+        <Route path="/admin" element={<RoleRoute allow={["ADMIN", "TEACHER"]} element={<AdminPortal />} />} />
+        <Route path="/tuition" element={<RoleRoute allow={["ADMIN", "TEACHER"]} element={<Manegement />} />} />
         <Route path="/" element={<LandingPage />} />
       </Routes>
     </BrowserRouter>
