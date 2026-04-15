@@ -1,16 +1,34 @@
-# React + Vite
+# ElectroPhysics Frontend (Vite + React)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Run locally
 
-Currently, two official plugins are available:
+Install dependencies:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm install
+```
 
-## React Compiler
+Create `.env` in this folder:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```env
+VITE_API_BASE_URL=http://localhost:8081
+```
 
-## Expanding the ESLint configuration
+Start dev server:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run dev
+```
+
+## Deploy on Vercel using GitHub
+
+1. Push your repository to GitHub.
+2. In Vercel, click New Project and import the GitHub repository.
+3. Choose one deployment style:
+	- Repo root deployment (recommended in this repo): Vercel automatically uses root `vercel.json`.
+	- Frontend folder deployment: set Root Directory to `frontend` so `frontend/vercel.json` is used.
+4. Add environment variable:
+	- `VITE_API_BASE_URL=https://online-classes-website-production.up.railway.app`
+5. Deploy.
+
+For SPA routes, this project uses an index fallback in `vercel.json`.
