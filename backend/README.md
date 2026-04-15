@@ -50,4 +50,6 @@ The app seeds demo users at startup (if DB is empty):
 Notes:
 - Port binding is automatic via `server.port=${PORT:8081}`.
 - Local development still works with defaults in `application.properties`.
+- Nixpacks JDK is pinned to 21 via `nixpacks.toml` (required for Spring Boot 4).
+- If needed, set Railway variable `NIXPACKS_JDK_VERSION=21` explicitly.
 
