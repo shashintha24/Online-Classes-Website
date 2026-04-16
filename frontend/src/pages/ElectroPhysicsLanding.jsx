@@ -338,13 +338,13 @@ export default function ElectroPhysicsLanding({ onEnterPortal }) {
           <div className="flex items-center gap-2 ml-auto">
             <Link
               to="/login"
-              className="hidden lg:inline-flex items-center border border-[#a78bfa] text-[#6d28d9] font-semibold px-4 py-2 rounded-xl text-sm hover:bg-[#ede9fe] transition-colors cursor-pointer"
+              className="hidden xl:inline-flex items-center border border-[#a78bfa] text-[#6d28d9] font-semibold px-4 py-2 rounded-xl text-sm hover:bg-[#ede9fe] transition-colors cursor-pointer"
             >
               Log in
             </Link>
             <Link
               to="/signup"
-              className="hidden lg:inline-flex items-center bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors cursor-pointer"
+              className="hidden xl:inline-flex items-center bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors cursor-pointer"
             >
               Sign up
             </Link>
@@ -357,7 +357,7 @@ export default function ElectroPhysicsLanding({ onEnterPortal }) {
             {onEnterPortal && (
               <button
                 onClick={onEnterPortal}
-                className="text-sm font-semibold bg-[#a435f0] hover:bg-[#8710d8] text-white px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                className="hidden xl:inline-flex text-sm font-semibold bg-[#a435f0] hover:bg-[#8710d8] text-white px-4 py-2 rounded-lg transition-colors cursor-pointer"
               >
                 Log in →
               </button>
@@ -389,6 +389,23 @@ export default function ElectroPhysicsLanding({ onEnterPortal }) {
                 </a>
               )
             ))}
+
+            <div className={`pt-2 mt-2 border-t ${t.divider} space-y-1`}>
+              <Link
+                to="/login"
+                className={`block w-full text-left text-sm px-3 py-2.5 rounded-lg ${t.textSub} ${t.navHover} transition-colors cursor-pointer`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Log in
+              </Link>
+              <Link
+                to="/signup"
+                className="block w-full text-left text-sm px-3 py-2.5 rounded-lg bg-[#7c3aed] text-white font-semibold hover:bg-[#6d28d9] transition-colors cursor-pointer"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Sign up
+              </Link>
+            </div>
           </div>
         )}
       </nav>

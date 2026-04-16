@@ -6,7 +6,7 @@ const ASSIGNMENT_STATUSES = ["Open", "In progress", "Graded"];
 
 function getAuthHeaders() {
   try {
-    const raw = localStorage.getItem("ep_auth");
+    const raw = sessionStorage.getItem("ep_auth");
     if (!raw) return {};
     const auth = JSON.parse(raw);
     if (!auth?.basicToken) return {};

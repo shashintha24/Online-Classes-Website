@@ -1,5 +1,4 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "installCommand": "npm install --include=dev",
   "buildCommand": "npm run build",
@@ -10,7 +9,7 @@
     },
     {
       "src": "/.*",
-      "dest": "/index.html"
+      "dest": "/src/main.jsx"
     }
   ]
 }

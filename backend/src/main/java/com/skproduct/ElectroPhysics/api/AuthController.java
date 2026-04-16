@@ -19,6 +19,7 @@ import com.skproduct.ElectroPhysics.api.dto.RegisterRequest;
 import com.skproduct.ElectroPhysics.auth.Role;
 import com.skproduct.ElectroPhysics.auth.User;
 import com.skproduct.ElectroPhysics.auth.UserRepository;
+import com.skproduct.ElectroPhysics.batch.BatchRepository;
 import com.skproduct.ElectroPhysics.student.StudentProfile;
 import com.skproduct.ElectroPhysics.student.StudentProfileRepository;
 import com.skproduct.ElectroPhysics.teacher.TeacherProfile;
@@ -29,16 +30,19 @@ import com.skproduct.ElectroPhysics.teacher.TeacherProfileRepository;
 public class AuthController {
 
     private final UserRepository userRepository;
+    private final BatchRepository batchRepository;
     private final StudentProfileRepository studentProfileRepository;
     private final TeacherProfileRepository teacherProfileRepository;
     private final PasswordEncoder passwordEncoder;
 
     public AuthController(
             UserRepository userRepository,
+            BatchRepository batchRepository,
             StudentProfileRepository studentProfileRepository,
             TeacherProfileRepository teacherProfileRepository,
             PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.batchRepository = batchRepository;
         this.studentProfileRepository = studentProfileRepository;
         this.teacherProfileRepository = teacherProfileRepository;
         this.passwordEncoder = passwordEncoder;
@@ -57,6 +61,17 @@ public class AuthController {
         }
 
         Role role = parseRole(request.role());
+        String grade = request.grade() == null ? "" : request.grade().trim();
+
+        if (role == Role.STUDENT) {
+            if (grade.isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Batch is required for student registration");
+            }
+            if (!batchRepository.existsByNameIgnoreCaseAndActiveTrue(grade)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selected batch is not available");
+            }
+        }
+
         User user = new User();
         user.setUsername(request.username().trim());
         user.setEmail(request.email().trim().toLowerCase(Locale.ROOT));
@@ -68,7 +83,7 @@ public class AuthController {
             StudentProfile profile = new StudentProfile();
             profile.setUser(user);
             profile.setFullName(request.fullName().trim());
-            profile.setGrade(request.grade() == null || request.grade().isBlank() ? "N/A" : request.grade().trim());
+            profile.setGrade(grade);
             studentProfileRepository.save(profile);
         } else {
             TeacherProfile profile = new TeacherProfile();

@@ -1,6 +1,7 @@
 package com.skproduct.ElectroPhysics.notification;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Locale;
 
 import org.springframework.stereotype.Service;
@@ -54,6 +55,15 @@ public class NotificationService {
                 "Fee marked paid",
                 studentName + " fee for " + feeMonth + " is marked as Paid.",
                 "FEE");
+    }
+
+    public void notifySchedulePublished(String classTitle, LocalDate date, boolean weeklyRecurring) {
+        String whenText = date == null ? "soon" : date.toString();
+        String recurrence = weeklyRecurring ? " (repeats weekly)" : "";
+        String body = classTitle + " scheduled for " + whenText + recurrence + ".";
+
+        createForAudience("STUDENT", "New class schedule", body, "SCHEDULE");
+        createForAudience("TEACHER", "New class schedule", body, "SCHEDULE");
     }
 
     public String audienceForRole(String roleName) {

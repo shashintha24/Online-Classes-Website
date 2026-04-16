@@ -167,7 +167,7 @@ export default function LoginPage() {
         throw new Error(payload.message || "Invalid credentials");
       }
 
-      localStorage.setItem("ep_auth", JSON.stringify({
+      sessionStorage.setItem("ep_auth", JSON.stringify({
         userId: payload.userId,
         username: payload.username,
         email: payload.email,

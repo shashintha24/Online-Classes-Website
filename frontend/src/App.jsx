@@ -10,7 +10,7 @@ import LandingPage from './pages/ElectroPhysicsLanding'
 
 function getStoredAuth() {
   try {
-    const raw = localStorage.getItem('ep_auth')
+    const raw = sessionStorage.getItem('ep_auth')
     return raw ? JSON.parse(raw) : null
   } catch {
     return null

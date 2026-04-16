@@ -6,7 +6,7 @@ const MATERIAL_TYPES = ["PDF", "VIDEO", "PAST_PAPER", "DOC", "LINK", "OTHER"];
 
 function getAuthHeaders() {
   try {
-    const raw = localStorage.getItem("ep_auth");
+    const raw = sessionStorage.getItem("ep_auth");
     if (!raw) return {};
     const auth = JSON.parse(raw);
     if (!auth?.basicToken) return {};
@@ -45,6 +45,7 @@ function materialVisual(materialType) {
 
 export default function MaterialsPage({ t }) {
   const [materials, setMaterials] = useState([]);
+  const [batchOptions, setBatchOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
@@ -57,7 +58,7 @@ export default function MaterialsPage({ t }) {
   const [formError, setFormError] = useState("");
   const [form, setForm] = useState({
     title: "",
-    batchName: "2026 Revision Batch",
+    batchName: "",
     materialType: "PDF",
     description: "",
     externalUrl: "",
@@ -90,9 +91,37 @@ export default function MaterialsPage({ t }) {
     loadMaterials();
   }, []);
 
+  useEffect(() => {
+    async function loadBatchOptions() {
+      try {
+        const response = await fetch(`${API_BASE}/api/batches/active`, {
+          headers: {
+            "Content-Type": "application/json",
+            ...getAuthHeaders(),
+          },
+        });
+        const data = await response.json().catch(() => []);
+        if (!response.ok || !Array.isArray(data)) {
+          return;
+        }
+        const options = Array.from(new Set(
+          data
+            .map((item) => item?.name)
+            .filter((name) => typeof name === "string" && name.trim().length > 0)
+            .map((name) => name.trim()),
+        ));
+        setBatchOptions(options);
+      } catch {
+        // Keep UI functional if batch API fails.
+      }
+    }
+
+    loadBatchOptions();
+  }, []);
+
   const batches = useMemo(() => {
-    return Array.from(new Set(materials.map((m) => m.batchName).filter(Boolean)));
-  }, [materials]);
+    return Array.from(new Set([...batchOptions, ...materials.map((m) => m.batchName).filter(Boolean)]));
+  }, [batchOptions, materials]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -128,9 +157,10 @@ export default function MaterialsPage({ t }) {
   }, [materials]);
 
   function openModal() {
+    const defaultBatch = batchOptions[0] || "";
     setForm({
       title: "",
-      batchName: "2026 Revision Batch",
+      batchName: defaultBatch,
       materialType: "PDF",
       description: "",
       externalUrl: "",
@@ -395,12 +425,16 @@ export default function MaterialsPage({ t }) {
 
                 <label className="space-y-1.5">
                   <span className={`text-xs uppercase font-semibold tracking-wide ${t.textTert}`}>Batch</span>
-                  <input
-                    className={`w-full rounded-lg px-3 py-2.5 text-sm outline-none ${t.inputBg}`}
-                    placeholder="2026 Revision Batch"
+                  <select
+                    className={`${t.selectBg} w-full rounded-lg px-3 py-2.5 text-sm cursor-pointer focus:outline-none`}
                     value={form.batchName}
                     onChange={(e) => updateField("batchName", e.target.value)}
-                  />
+                  >
+                    <option value="">General</option>
+                    {batches.map((batch) => (
+                      <option key={batch} value={batch}>{batch}</option>
+                    ))}
+                  </select>
                 </label>
 
                 <label className="space-y-1.5 sm:col-span-2">

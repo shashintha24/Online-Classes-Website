@@ -13,7 +13,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
 
 function getAuthHeaders() {
   try {
-    const raw = localStorage.getItem("ep_auth");
+    const raw = sessionStorage.getItem("ep_auth");
     if (!raw) return {};
     const auth = JSON.parse(raw);
     if (!auth?.basicToken) return {};
@@ -30,6 +30,7 @@ export default function StudentPortal() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [studentProfile, setStudentProfile] = useState(null);
   const navigate = useNavigate();
   const t = darkMode ? THEMES.dark : THEMES.light;
 
@@ -60,9 +61,32 @@ export default function StudentPortal() {
     loadUnreadCount();
   }, [activePage]);
 
+  useEffect(() => {
+    async function loadStudentProfile() {
+      try {
+        const response = await fetch(`${API_BASE}/api/students/me`, {
+          headers: {
+            "Content-Type": "application/json",
+            ...getAuthHeaders(),
+          },
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          return;
+        }
+        setStudentProfile(data);
+      } catch {
+        // Keep portal usable even if profile API fails.
+      }
+    }
+
+    loadStudentProfile();
+  }, []);
+
   let user = { username: "", email: "", role: "" };
   try {
-    user = JSON.parse(localStorage.getItem("ep_auth")) || user;
+    user = JSON.parse(sessionStorage.getItem("ep_auth")) || user;
   } catch {}
 
   const initials = user.username
@@ -70,12 +94,12 @@ export default function StudentPortal() {
     : "S";
   const displayName = user.username || "Student";
   const firstName = displayName.split(" ").filter(Boolean)[0] || displayName;
-  const courseLabel = user.courseName || user.course || user.enrollmentName || "2026 A/L Revision";
-  const badgeLabel = user.badgeLabel || user.courseName || user.course || "2026 Revision";
+  const enrolledCourse = studentProfile?.grade || user.courseName || user.course || user.enrollmentName || "2026 A/L Revision";
+  const badgeLabel = user.badgeLabel || enrolledCourse || "2026 Revision";
   const studentId = user.userId || "1042";
 
   const handleLogout = () => {
-    localStorage.removeItem("ep_auth");
+    sessionStorage.removeItem("ep_auth");
     navigate("/login");
   };
 
@@ -110,7 +134,7 @@ export default function StudentPortal() {
           <div className="w-9 h-9 rounded-full bg-[#ede9fe] text-[#3c3489] flex items-center justify-center text-xs font-bold flex-shrink-0">KP</div>
           <div className="min-w-0">
             <p className={`text-sm font-semibold ${t.text} truncate`}>{displayName}</p>
-            <p className={`text-[11px] ${t.textTert} truncate`}>{courseLabel}</p>
+            <p className={`text-[11px] ${t.textTert} truncate`}>{enrolledCourse}</p>
           </div>
         </div>
 
@@ -200,6 +224,7 @@ export default function StudentPortal() {
                 <div className="text-lg font-semibold">{user.username || "Student"}</div>
                 <div className="text-xs text-gray-500">{user.email || "No email available"}</div>
                 <div className="text-xs text-gray-400">Role: {user.role || "STUDENT"}</div>
+                <div className="text-xs text-gray-400">Enrolled course: {enrolledCourse}</div>
               </div>
               <button className="mt-2 w-full py-2 rounded-lg bg-[#a435f0] text-white font-semibold hover:bg-[#8710d8]" onClick={() => setProfileOpen(false)}>
                 Close

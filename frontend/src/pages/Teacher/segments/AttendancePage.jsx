@@ -5,7 +5,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
 
 function getAuthHeaders() {
   try {
-    const raw = localStorage.getItem("ep_auth");
+    const raw = sessionStorage.getItem("ep_auth");
     if (!raw) return {};
     const auth = JSON.parse(raw);
     if (!auth?.basicToken) return {};
@@ -38,7 +38,22 @@ export default function AttendancePage({ t }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const calData = { 1: "p", 2: "p", 3: "p", 4: "a", 5: "p", 6: "p", 7: "p", 8: "p", 9: "a", 10: "p", 11: "p" };
+  const now = new Date();
+  const currentDay = now.getDate();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const firstDayJs = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+  const firstDayMondayBased = (firstDayJs + 6) % 7;
+  const monthLabel = now.toLocaleDateString([], { month: "long", year: "numeric" });
+
+  const calData = useMemo(() => {
+    const data = {};
+    for (let day = 1; day <= daysInMonth; day += 1) {
+      if (day === currentDay) {
+        data[day] = todayRecords.length > 0 ? "p" : "a";
+      }
+    }
+    return data;
+  }, [daysInMonth, currentDay, todayRecords]);
 
   const register = useMemo(() => {
     const recordByStudent = new Map(todayRecords.map((record) => [record.studentUserId, record]));
@@ -142,12 +157,22 @@ export default function AttendancePage({ t }) {
     }
   }
 
-  const cells = [<div key="e0" />, ...Array.from({ length: 30 }, (_, i) => {
-    const d = i + 1;
-    const s = calData[d];
-    const cls = s === "p" ? "bg-emerald-500 text-white" : s === "a" ? "bg-red-500 text-white" : d > 11 ? `${t.barBg} ${t.textTert} opacity-40` : `${t.barBg} ${t.textTert}`;
-    return <div key={d} className={`aspect-square rounded flex items-center justify-center text-[10px] font-semibold ${cls}`}>{d}</div>;
-  })];
+  const cells = [
+    ...Array.from({ length: firstDayMondayBased }, (_, i) => <div key={`e-${i}`} />),
+    ...Array.from({ length: daysInMonth }, (_, i) => {
+      const d = i + 1;
+      const s = calData[d];
+      const isFuture = d > currentDay;
+      const cls = s === "p"
+        ? "bg-emerald-500 text-white"
+        : s === "a"
+        ? "bg-red-500 text-white"
+        : isFuture
+        ? `${t.barBg} ${t.textTert} opacity-40`
+        : `${t.barBg} ${t.textTert}`;
+      return <div key={d} className={`aspect-square rounded flex items-center justify-center text-[10px] font-semibold ${cls}`}>{d}</div>;
+    }),
+  ];
 
   return (
     <div className="p-6 space-y-4">
@@ -196,7 +221,7 @@ export default function AttendancePage({ t }) {
           </div>
         </Card>
 
-        <Card title="April 2026 Calendar" t={t}>
+        <Card title={`${monthLabel} Calendar`} t={t}>
           <div className="grid grid-cols-7 gap-1 mb-1">
             {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => <div key={i} className={`text-center text-[10px] font-semibold ${t.textTert}`}>{d}</div>)}
           </div>

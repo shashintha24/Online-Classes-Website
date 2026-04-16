@@ -11,7 +11,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
 
 function getAuth() {
   try {
-    const raw = localStorage.getItem("ep_auth");
+    const raw = sessionStorage.getItem("ep_auth");
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};

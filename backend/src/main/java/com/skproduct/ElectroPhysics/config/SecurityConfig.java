@@ -24,12 +24,14 @@ import com.skproduct.ElectroPhysics.auth.UserRepository;
 public class SecurityConfig {
 
     @Bean
+    @SuppressWarnings("unused")
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/batches/active").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/materials/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                 .requestMatchers("/api/students/**").hasAnyRole("STUDENT", "ADMIN")
@@ -42,6 +44,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @SuppressWarnings("unused")
     UserDetailsService userDetailsService(UserRepository userRepository) {
         return username -> userRepository.findByUsernameOrEmail(username, username)
             .map(user -> User.withUsername(user.getUsername())
@@ -52,11 +55,13 @@ public class SecurityConfig {
     }
 
     @Bean
+    @SuppressWarnings("unused")
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
+    @SuppressWarnings("unused")
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of(

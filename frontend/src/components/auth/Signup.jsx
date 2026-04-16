@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
@@ -150,6 +150,7 @@ export default function RegisterPage() {
   // Role-specific
   const [studentId, setStudentId]   = useState("");
   const [batch,     setBatch]       = useState("");
+  const [batchOptions, setBatchOptions] = useState([]);
   const [subject,   setSubject]     = useState("");
 
   // Account
@@ -221,6 +222,30 @@ export default function RegisterPage() {
 
   const rc = role ? RC[role] : RC.admin;
   const pw = passwordStrength(password);
+
+  useEffect(() => {
+    async function loadActiveBatches() {
+      try {
+        const response = await fetch(`${API_BASE}/api/batches/active`);
+        const data = await response.json().catch(() => []);
+        if (!response.ok || !Array.isArray(data)) {
+          setBatchOptions([]);
+          return;
+        }
+
+        const names = data
+          .map((item) => item?.name)
+          .filter((name) => typeof name === "string" && name.trim().length > 0)
+          .map((name) => name.trim());
+
+        setBatchOptions(Array.from(new Set(names)));
+      } catch {
+        setBatchOptions([]);
+      }
+    }
+
+    loadActiveBatches();
+  }, []);
 
   const goNext = (nextStep) => {
     setAnimKey(k => k + 1);
@@ -501,13 +526,18 @@ export default function RegisterPage() {
                             }}
                           >
                             <option value="">Select batch</option>
-                            <option>2026 A/L Revision</option>
-                            <option>2027 Theory</option>
-                            <option>O/L Foundation</option>
+                            {batchOptions.map((item) => (
+                              <option key={item} value={item}>{item}</option>
+                            ))}
                           </select>
                           <Ic.ChevronRight {...sz(13)} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%) rotate(90deg)", color: D.tert, pointerEvents: "none" }} />
                         </div>
                         {errors.batch && <p style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>{errors.batch}</p>}
+                        {!errors.batch && batchOptions.length === 0 && (
+                          <p style={{ fontSize: 11, color: D.tert, marginTop: 4 }}>
+                            No active batches available now. Ask admin/teacher to add a batch.
+                          </p>
+                        )}
                       </div>
                     </div>
                   </>
@@ -815,7 +845,7 @@ export default function RegisterPage() {
                 onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
                 onClick={() => {
                   if (createdAuth) {
-                    localStorage.setItem("ep_auth", JSON.stringify({
+                    sessionStorage.setItem("ep_auth", JSON.stringify({
                       userId: createdAuth.userId,
                       username: createdAuth.username,
                       email: createdAuth.email,

@@ -17,6 +17,8 @@ import com.skproduct.ElectroPhysics.assignment.SubmissionLikeRepository;
 import com.skproduct.ElectroPhysics.auth.Role;
 import com.skproduct.ElectroPhysics.auth.User;
 import com.skproduct.ElectroPhysics.auth.UserRepository;
+import com.skproduct.ElectroPhysics.batch.Batch;
+import com.skproduct.ElectroPhysics.batch.BatchRepository;
 import com.skproduct.ElectroPhysics.student.StudentProfile;
 import com.skproduct.ElectroPhysics.student.StudentProfileRepository;
 import com.skproduct.ElectroPhysics.teacher.TeacherProfile;
@@ -32,10 +34,28 @@ public class DataInitializer {
             StudentProfileRepository studentProfileRepository,
             TeacherProfileRepository teacherProfileRepository,
             PasswordEncoder passwordEncoder,
+            BatchRepository batchRepository,
             ClassAssignmentRepository assignmentRepository,
             AssignmentSubmissionRepository submissionRepository,
             SubmissionLikeRepository likeRepository) {
         return args -> {
+            if (batchRepository.count() == 0) {
+                Batch batch2026 = new Batch();
+                batch2026.setName("2026 A/L Revision");
+                batch2026.setActive(true);
+                batchRepository.save(batch2026);
+
+                Batch batch2027 = new Batch();
+                batch2027.setName("2027 Theory");
+                batch2027.setActive(true);
+                batchRepository.save(batch2027);
+
+                Batch olFoundation = new Batch();
+                olFoundation.setName("O/L Foundation");
+                olFoundation.setActive(true);
+                batchRepository.save(olFoundation);
+            }
+
             if (userRepository.findByUsername("admin1").isEmpty()) {
                 User admin = new User();
                 admin.setUsername("admin1");

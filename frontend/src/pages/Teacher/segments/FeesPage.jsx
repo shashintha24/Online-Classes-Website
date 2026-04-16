@@ -5,7 +5,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
 
 function getAuthHeaders() {
   try {
-    const raw = localStorage.getItem("ep_auth");
+    const raw = sessionStorage.getItem("ep_auth");
     if (!raw) return {};
     const auth = JSON.parse(raw);
     if (!auth?.basicToken) return {};
@@ -38,6 +38,26 @@ function statusMeta(status) {
   if (value.includes("paid")) return { v: "green", label: "Paid" };
   if (value.includes("over")) return { v: "red", label: "Overdue" };
   return { v: "amber", label: "Pending" };
+}
+
+function batchBadgeClass(batchName) {
+  const palette = [
+    "bg-violet-100 text-violet-700",
+    "bg-sky-100 text-sky-700",
+    "bg-emerald-100 text-emerald-700",
+    "bg-amber-100 text-amber-700",
+    "bg-rose-100 text-rose-700",
+    "bg-indigo-100 text-indigo-700",
+  ];
+
+  const key = (batchName || "General").toLowerCase();
+  let hash = 0;
+  for (let i = 0; i < key.length; i += 1) {
+    hash = (hash << 5) - hash + key.charCodeAt(i);
+    hash |= 0;
+  }
+  const idx = Math.abs(hash) % palette.length;
+  return palette[idx];
 }
 
 export default function FeesPage({ t }) {
@@ -229,7 +249,11 @@ export default function FeesPage({ t }) {
               return (
               <tr key={row.id} className={t.tableRow}>
                 <Td t={t}><span className="font-medium">{row.studentName}</span></Td>
-                <Td t={t}>{row.grade}</Td><Td t={t}>{`LKR ${Number(row.amount || 0).toLocaleString()}`}</Td>
+                <Td t={t}>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${batchBadgeClass(row.grade)}`}>
+                    {row.grade || "General"}
+                  </span>
+                </Td><Td t={t}>{`LKR ${Number(row.amount || 0).toLocaleString()}`}</Td>
                 <Td t={t}>{formatDate(row.dueDate)}</Td><Td t={t}>{formatDate(row.paidOn)}</Td>
                 <td className="py-3 px-3"><Badge v={status.v} t={t}>{status.label}</Badge></td>
                 <td className="py-3 px-3 pr-5">

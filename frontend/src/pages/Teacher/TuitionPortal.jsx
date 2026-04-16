@@ -7,6 +7,8 @@ import AttendancePage from "./segments/AttendancePage";
 import MarksPage from "./segments/MarksPage";
 import AssignmentsPage from "./segments/AssignmentsPage";
 import MaterialsPage from "./segments/MaterialsPage";
+import SchedulePage from "./segments/SchedulePage";
+import BatchesPage from "./segments/BatchesPage";
 import FeesPage from "./segments/FeesPage";
 import NotificationsPage from "./segments/NotificationsPage";
 
@@ -14,7 +16,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
 
 function getAuthHeaders() {
   try {
-    const raw = localStorage.getItem("ep_auth");
+    const raw = sessionStorage.getItem("ep_auth");
     if (!raw) return {};
     const auth = JSON.parse(raw);
     if (!auth?.basicToken) return {};
@@ -31,6 +33,8 @@ const PAGES = {
   marks: MarksPage,
   assignments: AssignmentsPage,
   materials: MaterialsPage,
+  schedule: SchedulePage,
+  batches: BatchesPage,
   fees: FeesPage,
   notifications: NotificationsPage,
 };
@@ -76,7 +80,7 @@ export default function TuitionPlatform() {
   // Get user info from localStorage
   let user = { username: "", email: "", role: "", userId: "" };
   try {
-    user = JSON.parse(localStorage.getItem("ep_auth")) || user;
+    user = JSON.parse(sessionStorage.getItem("ep_auth")) || user;
   } catch {}
 
   const initials = user.username
@@ -84,7 +88,7 @@ export default function TuitionPlatform() {
     : "U";
 
   const handleLogout = () => {
-    localStorage.removeItem("ep_auth");
+    sessionStorage.removeItem("ep_auth");
     navigate("/login");
   };
 
